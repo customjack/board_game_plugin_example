@@ -1,6 +1,6 @@
 {
   "name": "example-everything-plugin",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Demonstration plugin that registers every supported extension point.",
   "main": "dist/plugins/example-plugin.js",
   "type": "module",
