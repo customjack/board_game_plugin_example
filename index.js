@@ -45,8 +45,7 @@ export default function createExampleEverythingPlugin(bundle) {
         TurnPhases,
         GamePhases,
         PluginMapProvider,
-        MapStorageManager,
-        createMapProvider
+        MapStorageManager
     } = bundle;
 
     const DemoAction = createDemoAction(BaseAction);
@@ -142,10 +141,10 @@ export default function createExampleEverythingPlugin(bundle) {
         }
 
         registerMap() {
-            const providerFactory = createMapProvider
-                ? () => createMapProvider(PLUGIN_ID)
+            const providerFactory = bundle.createMapProvider
+                ? () => bundle.createMapProvider(PLUGIN_ID)
                 : PluginMapProvider
-                    ? () => new PluginMapProvider(PLUGIN_ID, MapStorageManager || null)
+                    ? () => new PluginMapProvider(PLUGIN_ID, MapStorageManager || bundle.MapStorageManager || null)
                     : null;
 
             if (!providerFactory) {

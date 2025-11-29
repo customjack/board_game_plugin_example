@@ -272,7 +272,7 @@ const createDemoPieceManager = (BasePieceManager) =>
         }
     };
 
-var version = "1.0.1";
+var version = "1.0.2";
 var pkg = {
 	version: version};
 
@@ -484,8 +484,7 @@ function createExampleEverythingPlugin(bundle) {
         TurnPhases,
         GamePhases,
         PluginMapProvider,
-        MapStorageManager,
-        createMapProvider
+        MapStorageManager
     } = bundle;
 
     const DemoAction = createDemoAction(BaseAction);
@@ -581,10 +580,10 @@ function createExampleEverythingPlugin(bundle) {
         }
 
         registerMap() {
-            const providerFactory = createMapProvider
-                ? () => createMapProvider(PLUGIN_ID)
+            const providerFactory = bundle.createMapProvider
+                ? () => bundle.createMapProvider(PLUGIN_ID)
                 : PluginMapProvider
-                    ? () => new PluginMapProvider(PLUGIN_ID, MapStorageManager || null)
+                    ? () => new PluginMapProvider(PLUGIN_ID, MapStorageManager || bundle.MapStorageManager || null)
                     : null;
 
             if (!providerFactory) {
