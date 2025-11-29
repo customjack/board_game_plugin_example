@@ -38,11 +38,17 @@ const createDemoTrigger = (BaseTrigger) =>
         }
 
         isTriggered(context) {
-            this.emitEvent(context?.eventBus, 'demoTriggerChecked', {
-                space: context?.space,
-                gameState: context?.gameState
-            });
-            return Boolean(this.payload?.always ?? true);
+            const targetSpaceId = this.payload?.spaceId || 'demo-trigger';
+            const spaceMatches = context?.space?.id === targetSpaceId;
+
+            if (spaceMatches) {
+                this.emitEvent(context?.eventBus, 'demoTriggerChecked', {
+                    space: context?.space,
+                    gameState: context?.gameState
+                });
+            }
+
+            return spaceMatches && Boolean(this.payload?.always ?? true);
         }
 
         static getMetadata() {
@@ -176,10 +182,18 @@ const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
         rollDiceForCurrentPlayer() {
             const currentPlayer = this.turnManager.getCurrentPlayer();
             if (currentPlayer?.state === 'FINISHED') {
-                this.deactivateRollButton();
+                // Skip finished players and advance turn
                 this.gameState.setRemainingMoves(0);
                 this.updateRemainingMoves(0);
-                this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
+                this.gameState.nextPlayerTurn();
+
+                const allFinished = this.gameState.players.every(p => p.state === 'FINISHED');
+                if (!allFinished) {
+                    this.changePhase({ newTurnPhase: this.turnPhases?.BEGIN_TURN || 'BEGIN_TURN', delay: 0 });
+                } else {
+                    this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
+                }
+                this.deactivateRollButton();
                 return null;
             }
 
@@ -317,7 +331,7 @@ const createDemoPieceManager = (BasePieceManager) =>
         }
     };
 
-var version = "1.0.6";
+var version = "1.0.7";
 var pkg = {
 	version: version};
 
@@ -514,7 +528,7 @@ const demoBoard = {
                     ],
                     "triggers": [
                         {
-                            "when": { "type": "DEMO_TRIGGER", "payload": { "always": true } },
+                            "when": { "type": "DEMO_TRIGGER", "payload": { "always": true, "spaceId": "demo-trigger" } },
                             "action": {
                                 "type": "PROMPT_CURRENT_PLAYER",
                                 "payload": {

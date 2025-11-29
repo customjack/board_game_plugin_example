@@ -19,10 +19,18 @@ export const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
         rollDiceForCurrentPlayer() {
             const currentPlayer = this.turnManager.getCurrentPlayer();
             if (currentPlayer?.state === 'FINISHED') {
-                this.deactivateRollButton();
+                // Skip finished players and advance turn
                 this.gameState.setRemainingMoves(0);
                 this.updateRemainingMoves(0);
-                this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
+                this.gameState.nextPlayerTurn();
+
+                const allFinished = this.gameState.players.every(p => p.state === 'FINISHED');
+                if (!allFinished) {
+                    this.changePhase({ newTurnPhase: this.turnPhases?.BEGIN_TURN || 'BEGIN_TURN', delay: 0 });
+                } else {
+                    this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
+                }
+                this.deactivateRollButton();
                 return null;
             }
 

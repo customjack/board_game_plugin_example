@@ -186,7 +186,7 @@ export const demoBoard = {
                     ],
                     "triggers": [
                         {
-                            "when": { "type": "DEMO_TRIGGER", "payload": { "always": true } },
+                            "when": { "type": "DEMO_TRIGGER", "payload": { "always": true, "spaceId": "demo-trigger" } },
                             "action": {
                                 "type": "PROMPT_CURRENT_PLAYER",
                                 "payload": {

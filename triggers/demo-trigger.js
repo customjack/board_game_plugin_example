@@ -5,11 +5,17 @@ export const createDemoTrigger = (BaseTrigger) =>
         }
 
         isTriggered(context) {
-            this.emitEvent(context?.eventBus, 'demoTriggerChecked', {
-                space: context?.space,
-                gameState: context?.gameState
-            });
-            return Boolean(this.payload?.always ?? true);
+            const targetSpaceId = this.payload?.spaceId || 'demo-trigger';
+            const spaceMatches = context?.space?.id === targetSpaceId;
+
+            if (spaceMatches) {
+                this.emitEvent(context?.eventBus, 'demoTriggerChecked', {
+                    space: context?.space,
+                    gameState: context?.gameState
+                });
+            }
+
+            return spaceMatches && Boolean(this.payload?.always ?? true);
         }
 
         static getMetadata() {
