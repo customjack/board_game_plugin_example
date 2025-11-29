@@ -34,8 +34,8 @@ export const demoBoard = {
                 "description": "Registers dummy implementations for every extension point"
             }
         ],
-        "minPlayers": 2,
-        "maxPlayers": 4
+        "minPlayers": 1,
+        "maxPlayers": 10
     },
     "engine": {
         "type": "demo-engine",

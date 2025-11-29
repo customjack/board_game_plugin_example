@@ -148,21 +148,36 @@ const createDemoState = (BaseGameState) =>
         }
     };
 
-const createDemoEngine = (BaseGameEngine) =>
-    class DemoGameEngine extends BaseGameEngine {
+const createDemoEngine = (TurnBasedGameEngine) =>
+    class DemoGameEngine extends TurnBasedGameEngine {
         constructor(dependencies, config = {}) {
-            super(dependencies, config);
+            super(dependencies, { ...config, manualMoveChoice: true });
             this.demoMessages = [];
         }
 
         init() {
-            this.initialized = true;
+            super.init();
             this.emitEvent('demoEngineInit');
         }
 
         updateGameState(gameState) {
-            this.gameState = gameState;
+            super.updateGameState(gameState);
             this.emitEvent('demoGameStateUpdated', { counter: gameState.demoCounter });
+        }
+
+        rollDiceForCurrentPlayer() {
+            const input = window.prompt('Enter number of spaces to move (developer demo)', '1');
+            const parsed = parseInt(input, 10);
+            const result = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+            const currentPlayer = this.turnManager.getCurrentPlayer();
+            const name = currentPlayer?.nickname || 'Player';
+            console.log(`[DemoGameEngine] ${name} chose to move ${result} space(s)`);
+            this.logPlayerAction(currentPlayer, `chose to move ${result} space(s).`, {
+                type: 'dice-roll',
+                metadata: { result }
+            });
+            this.deactivateRollButton();
+            return result;
         }
 
         async onPlayerAction(playerId, actionType, actionData) {
@@ -173,8 +188,7 @@ const createDemoEngine = (BaseGameEngine) =>
 
         cleanup() {
             this.demoMessages = [];
-            this.running = false;
-            this.initialized = false;
+            super.cleanup();
         }
 
         getEngineType() {
@@ -182,18 +196,12 @@ const createDemoEngine = (BaseGameEngine) =>
         }
 
         getRequiredUIComponents() {
-            return [{
-                id: 'demo-ui',
-                type: 'demo-ui',
-                required: false,
-                description: 'Simple demo UI component',
-                config: { label: 'Demo UI' },
-                events: { emits: ['demoClick'], listens: [] }
-            }];
+            // Use default TurnBased requirements (roll button, timer, etc.)
+            return super.getRequiredUIComponents();
         }
 
         getOptionalUIComponents() {
-            return [];
+            return super.getOptionalUIComponents();
         }
     };
 
@@ -317,8 +325,8 @@ const demoBoard = {
                 "description": "Registers dummy implementations for every extension point"
             }
         ],
-        "minPlayers": 2,
-        "maxPlayers": 4
+        "minPlayers": 1,
+        "maxPlayers": 10
     },
     "engine": {
         "type": "demo-engine",
@@ -492,7 +500,7 @@ function createExampleEverythingPlugin(bundle) {
     const DemoEffect = createDemoEffect(PlayerEffect);
     const DemoStat = createDemoStat(BaseStat);
     const DemoGameState = createDemoState(BaseGameState);
-    const DemoGameEngine = createDemoEngine(BaseGameEngine);
+    const DemoGameEngine = createDemoEngine(bundle.TurnBasedGameEngine || BaseGameEngine);
     const DemoPhaseStateMachine = createDemoPhaseStateMachine(PhaseStateMachine, GamePhases, TurnPhases);
     const DemoTurnManager = createDemoTurnManager();
     const DemoEventProcessor = createDemoEventProcessor();

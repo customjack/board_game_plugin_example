@@ -53,7 +53,7 @@ export default function createExampleEverythingPlugin(bundle) {
     const DemoEffect = createDemoEffect(PlayerEffect);
     const DemoStat = createDemoStat(BaseStat);
     const DemoGameState = createDemoState(BaseGameState);
-    const DemoGameEngine = createDemoEngine(BaseGameEngine);
+    const DemoGameEngine = createDemoEngine(bundle.TurnBasedGameEngine || BaseGameEngine);
     const DemoPhaseStateMachine = createDemoPhaseStateMachine(PhaseStateMachine, GamePhases, TurnPhases);
     const DemoTurnManager = createDemoTurnManager();
     const DemoEventProcessor = createDemoEventProcessor();
