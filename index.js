@@ -19,6 +19,7 @@ import { createDemoUIController } from './ui/demo-ui-controller.js';
 import { createDemoUIComponent } from './ui/demo-ui-component.js';
 import { createDemoAnimation } from './animations/demo-animation.js';
 import { createDemoPieceManager } from './pieces/demo-piece-manager.js';
+import { registerDemoPlayerStates } from './states/demo-player-states.js';
 import { demoBoard } from './maps/demo-board.js';
 import { EXAMPLE_PLUGIN_VERSION } from './version.js';
 
@@ -87,6 +88,9 @@ export default function createExampleEverythingPlugin(bundle) {
             if (pieceRegistry && !pieceRegistry.get?.('demo-piece-manager')) {
                 pieceRegistry.register('demo-piece-manager', DemoPieceManager);
             }
+
+            // Register custom player states
+            registerDemoPlayerStates(this.registryManager);
         }
 
         registerFactories() {
