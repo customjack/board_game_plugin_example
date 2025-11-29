@@ -6,10 +6,10 @@ A standalone demonstration plugin for the Board Game project that shows every ex
 
 Load via CDN in the Board Game plugin manager:
 
-[CDN Link (v1.0.2)](https://cdn.jsdelivr.net/gh/customjack/board_game_plugin_example@v1.0.2/dist/plugins/example-plugin.js)
+[CDN Link (v1.0.3)](https://cdn.jsdelivr.net/gh/customjack/board_game_plugin_example@v1.0.3/dist/plugins/example-plugin.js)
 
 ```
-https://cdn.jsdelivr.net/gh/customjack/board_game_plugin_example@v1.0.2/dist/plugins/example-plugin.js
+https://cdn.jsdelivr.net/gh/customjack/board_game_plugin_example@v1.0.3/dist/plugins/example-plugin.js
 ```
 
 This registers the plugin and its bundled demo map when loaded.
@@ -20,7 +20,7 @@ Sample requirements block for a board/map:
   "id": "example-everything-plugin",
   "version": "^1.0.0",
   "source": "remote",
-  "cdn": "https://cdn.jsdelivr.net/gh/customjack/board_game_plugin_example@v1.0.2/dist/plugins/example-plugin.js",
+  "cdn": "https://cdn.jsdelivr.net/gh/customjack/board_game_plugin_example@v1.0.3/dist/plugins/example-plugin.js",
   "name": "Example Everything Plugin",
   "description": "Registers dummy implementations for every extension point"
 }
