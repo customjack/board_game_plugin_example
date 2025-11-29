@@ -163,7 +163,28 @@ export const demoBoard = {
                     "position": { "x": 820, "y": 200 },
                     "visual": { "size": 60, "color": "#d9f7be", "textColor": "#000000" },
                     "connections": [],
-                    "triggers": []
+                    "triggers": [
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "SET_PLAYER_STATE",
+                                "payload": {
+                                    "state": "FINISHED"
+                                }
+                            },
+                            "priority": "MID"
+                        },
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "You reached the finish! Your state is now FINISHED."
+                                }
+                            },
+                            "priority": "LOW"
+                        }
+                    ]
                 }
             ]
         }

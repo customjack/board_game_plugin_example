@@ -148,7 +148,7 @@ const createDemoState = (BaseGameState) =>
         }
     };
 
-const createDemoEngine = (TurnBasedGameEngine) =>
+const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
     class DemoGameEngine extends TurnBasedGameEngine {
         constructor(dependencies, config = {}) {
             super(dependencies, { ...config, manualMoveChoice: true });
@@ -157,6 +157,7 @@ const createDemoEngine = (TurnBasedGameEngine) =>
 
         init() {
             super.init();
+            this.ensureDemoStats();
             this.emitEvent('demoEngineInit');
         }
 
@@ -202,6 +203,20 @@ const createDemoEngine = (TurnBasedGameEngine) =>
 
         getOptionalUIComponents() {
             return super.getOptionalUIComponents();
+        }
+
+        ensureDemoStats() {
+            if (!Array.isArray(this.gameState?.players) || !DemoStatClass) return;
+            this.gameState.players.forEach((player) => {
+                const existing = player.stats?.find?.(s => s.id === 'demo-stat');
+                if (!existing && typeof player.addStat === 'function') {
+                    try {
+                        player.addStat(new DemoStatClass('demo-stat', 0));
+                    } catch (e) {
+                        console.warn('[DemoGameEngine] Failed to add demo-stat', e);
+                    }
+                }
+            });
         }
     };
 
@@ -454,7 +469,28 @@ const demoBoard = {
                     "position": { "x": 820, "y": 200 },
                     "visual": { "size": 60, "color": "#d9f7be", "textColor": "#000000" },
                     "connections": [],
-                    "triggers": []
+                    "triggers": [
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "SET_PLAYER_STATE",
+                                "payload": {
+                                    "state": "FINISHED"
+                                }
+                            },
+                            "priority": "MID"
+                        },
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "You reached the finish! Your state is now FINISHED."
+                                }
+                            },
+                            "priority": "LOW"
+                        }
+                    ]
                 }
             ]
         }
@@ -500,7 +536,7 @@ function createExampleEverythingPlugin(bundle) {
     const DemoEffect = createDemoEffect(PlayerEffect);
     const DemoStat = createDemoStat(BaseStat);
     const DemoGameState = createDemoState(BaseGameState);
-    const DemoGameEngine = createDemoEngine(bundle.TurnBasedGameEngine || BaseGameEngine);
+    const DemoGameEngine = createDemoEngine(bundle.TurnBasedGameEngine || BaseGameEngine, DemoStat);
     const DemoPhaseStateMachine = createDemoPhaseStateMachine(PhaseStateMachine, GamePhases, TurnPhases);
     const DemoTurnManager = createDemoTurnManager();
     const DemoEventProcessor = createDemoEventProcessor();

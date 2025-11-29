@@ -1,4 +1,4 @@
-export const createDemoEngine = (TurnBasedGameEngine) =>
+export const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
     class DemoGameEngine extends TurnBasedGameEngine {
         constructor(dependencies, config = {}) {
             super(dependencies, { ...config, manualMoveChoice: true });
@@ -7,6 +7,7 @@ export const createDemoEngine = (TurnBasedGameEngine) =>
 
         init() {
             super.init();
+            this.ensureDemoStats();
             this.emitEvent('demoEngineInit');
         }
 
@@ -52,5 +53,19 @@ export const createDemoEngine = (TurnBasedGameEngine) =>
 
         getOptionalUIComponents() {
             return super.getOptionalUIComponents();
+        }
+
+        ensureDemoStats() {
+            if (!Array.isArray(this.gameState?.players) || !DemoStatClass) return;
+            this.gameState.players.forEach((player) => {
+                const existing = player.stats?.find?.(s => s.id === 'demo-stat');
+                if (!existing && typeof player.addStat === 'function') {
+                    try {
+                        player.addStat(new DemoStatClass('demo-stat', 0));
+                    } catch (e) {
+                        console.warn('[DemoGameEngine] Failed to add demo-stat', e);
+                    }
+                }
+            });
         }
     };
