@@ -17,10 +17,18 @@ export const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
         }
 
         rollDiceForCurrentPlayer() {
+            const currentPlayer = this.turnManager.getCurrentPlayer();
+            if (currentPlayer?.state === 'FINISHED') {
+                this.deactivateRollButton();
+                this.gameState.setRemainingMoves(0);
+                this.updateRemainingMoves(0);
+                this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
+                return null;
+            }
+
             const input = window.prompt('Enter number of spaces to move (developer demo)', '1');
             const parsed = parseInt(input, 10);
             const result = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-            const currentPlayer = this.turnManager.getCurrentPlayer();
             const name = currentPlayer?.nickname || 'Player';
             console.log(`[DemoGameEngine] ${name} chose to move ${result} space(s)`);
             this.logPlayerAction(currentPlayer, `chose to move ${result} space(s).`, {
@@ -29,6 +37,13 @@ export const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
             });
             this.deactivateRollButton();
             return result;
+        }
+
+        handleAfterDiceRoll(rollResult) {
+            if (rollResult === null || rollResult === undefined) {
+                return;
+            }
+            super.handleAfterDiceRoll(rollResult);
         }
 
         async onPlayerAction(playerId, actionType, actionData) {

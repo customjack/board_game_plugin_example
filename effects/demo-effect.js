@@ -5,12 +5,19 @@ export const createDemoEffect = (PlayerEffect) =>
         }
 
         apply(gameEngine) {
+            // Attach to current player so it shows in UI
+            const player = gameEngine?.gameState?.getCurrentPlayer?.();
+            if (player && typeof player.addEffect === 'function') {
+                const already = (player.effects || []).find(e => e.id === this.id);
+                if (!already) {
+                    player.addEffect(this);
+                }
+            }
             this.enact(gameEngine);
         }
 
         enact(gameEngine) {
             gameEngine?.emitEvent?.('demoEffectApplied', { effectId: this.id });
-            this.markForRemoval();
         }
 
         static getMetadata() {

@@ -70,12 +70,19 @@ const createDemoEffect = (PlayerEffect) =>
         }
 
         apply(gameEngine) {
+            // Attach to current player so it shows in UI
+            const player = gameEngine?.gameState?.getCurrentPlayer?.();
+            if (player && typeof player.addEffect === 'function') {
+                const already = (player.effects || []).find(e => e.id === this.id);
+                if (!already) {
+                    player.addEffect(this);
+                }
+            }
             this.enact(gameEngine);
         }
 
         enact(gameEngine) {
             gameEngine?.emitEvent?.('demoEffectApplied', { effectId: this.id });
-            this.markForRemoval();
         }
 
         static getMetadata() {
@@ -167,10 +174,18 @@ const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
         }
 
         rollDiceForCurrentPlayer() {
+            const currentPlayer = this.turnManager.getCurrentPlayer();
+            if (currentPlayer?.state === 'FINISHED') {
+                this.deactivateRollButton();
+                this.gameState.setRemainingMoves(0);
+                this.updateRemainingMoves(0);
+                this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
+                return null;
+            }
+
             const input = window.prompt('Enter number of spaces to move (developer demo)', '1');
             const parsed = parseInt(input, 10);
             const result = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-            const currentPlayer = this.turnManager.getCurrentPlayer();
             const name = currentPlayer?.nickname || 'Player';
             console.log(`[DemoGameEngine] ${name} chose to move ${result} space(s)`);
             this.logPlayerAction(currentPlayer, `chose to move ${result} space(s).`, {
@@ -179,6 +194,13 @@ const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
             });
             this.deactivateRollButton();
             return result;
+        }
+
+        handleAfterDiceRoll(rollResult) {
+            if (rollResult === null || rollResult === undefined) {
+                return;
+            }
+            super.handleAfterDiceRoll(rollResult);
         }
 
         async onPlayerAction(playerId, actionType, actionData) {
@@ -295,7 +317,7 @@ const createDemoPieceManager = (BasePieceManager) =>
         }
     };
 
-var version = "1.0.5";
+var version = "1.0.6";
 var pkg = {
 	version: version};
 
@@ -363,7 +385,18 @@ const demoBoard = {
                     "connections": [
                         { "targetId": "demo-action", "draw": true }
                     ],
-                    "triggers": []
+                    "triggers": [
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "Welcome to the demo board! Move along the path to see each component."
+                                }
+                            },
+                            "priority": "LOW"
+                        }
+                    ]
                 },
                 {
                     "id": "demo-action",
@@ -384,6 +417,16 @@ const demoBoard = {
                                 }
                             },
                             "priority": "MID"
+                        },
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "Demo Action space: fired the demo action."
+                                }
+                            },
+                            "priority": "LOW"
                         }
                     ]
                 },
@@ -413,6 +456,16 @@ const demoBoard = {
                                 }
                             },
                             "priority": "MID"
+                        },
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "Demo Effect space: applied DemoEffect to your player."
+                                }
+                            },
+                            "priority": "LOW"
                         }
                     ]
                 },
@@ -437,6 +490,16 @@ const demoBoard = {
                                 }
                             },
                             "priority": "MID"
+                        },
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "Demo Stat space: set demo-stat to 42. Check Player Info > Activity."
+                                }
+                            },
+                            "priority": "LOW"
                         }
                     ]
                 },
@@ -459,6 +522,16 @@ const demoBoard = {
                                 }
                             },
                             "priority": "MID"
+                        },
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "Demo Trigger space: ran custom trigger and prompt."
+                                }
+                            },
+                            "priority": "LOW"
                         }
                     ]
                 },
@@ -486,6 +559,16 @@ const demoBoard = {
                                 "type": "PROMPT_CURRENT_PLAYER",
                                 "payload": {
                                     "message": "You reached the finish! Your state is now FINISHED."
+                                }
+                            },
+                            "priority": "LOW"
+                        },
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "Finish space: game end state applied."
                                 }
                             },
                             "priority": "LOW"
