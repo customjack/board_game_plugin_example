@@ -16,24 +16,89 @@ export const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
             this.emitEvent('demoGameStateUpdated', { counter: gameState.demoCounter });
         }
 
+        handleBeginTurn() {
+            const currentPlayer = this.turnManager.getCurrentPlayer();
+            
+            // Check for finished players before starting their turn
+            if (currentPlayer?.state === 'FINISHED') {
+                console.log(`[DemoGameEngine] Skipping turn for finished player ${currentPlayer.nickname}`);
+                
+                // Check if all players are finished
+                const allFinished = this.gameState.players.every(p => p.state === 'FINISHED');
+                if (allFinished) {
+                    // All players finished - end the game
+                    console.log('[DemoGameEngine] All players have finished. Ending game.');
+                    this.log('All players have finished the game.', { type: 'system' });
+                    this.changePhase({ 
+                        newGamePhase: this.gamePhases?.GAME_ENDED || 'GAME_ENDED', 
+                        newTurnPhase: this.turnPhases?.CHANGE_TURN || 'CHANGE_TURN', 
+                        delay: 0 
+                    });
+                    return;
+                }
+                
+                // Skip this finished player - go directly to END_TURN
+                // We'll handle the turn advancement in handleEndTurn
+                this.gameState.setRemainingMoves(0);
+                this.updateRemainingMoves(0);
+                this.deactivateRollButton();
+                this.stopTimer();
+                // Go to END_TURN - handleEndTurn will advance to next player
+                this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
+                return;
+            }
+
+            // Call parent to handle normal turn start
+            super.handleBeginTurn();
+        }
+
+        handleEndTurn() {
+            const currentPlayer = this.turnManager.getCurrentPlayer();
+            
+            // If current player is finished, we need to advance the turn
+            // (parent only advances on client turn, but we need to advance for finished players)
+            if (currentPlayer?.state === 'FINISHED') {
+                // Log the turn end
+                this.logPlayerAction(currentPlayer, 'skipped turn (finished).', {
+                    type: 'turn-end',
+                    metadata: { reason: 'finished' }
+                });
+                
+                // Advance to next player
+                this.turnManager.nextTurn();
+                
+                // Check if all players are finished after advancing
+                const allFinished = this.gameState.players.every(p => p.state === 'FINISHED');
+                if (allFinished) {
+                    // All players finished - end the game
+                    console.log('[DemoGameEngine] All players have finished. Ending game.');
+                    this.log('All players have finished the game.', { type: 'system' });
+                    this.changePhase({ 
+                        newGamePhase: this.gamePhases?.GAME_ENDED || 'GAME_ENDED', 
+                        newTurnPhase: this.turnPhases?.CHANGE_TURN || 'CHANGE_TURN', 
+                        delay: 0 
+                    });
+                    return;
+                }
+                
+                // Move to next player's turn
+                this.changePhase({ newTurnPhase: this.turnPhases?.CHANGE_TURN || 'CHANGE_TURN', delay: 0 });
+                return;
+            }
+
+            // Call parent for normal turn end handling
+            super.handleEndTurn();
+        }
+
         handleWaitingForMove() {
             const currentPlayer = this.turnManager.getCurrentPlayer();
             
-            // Don't activate roll button for finished players
+            // Defensive check - this shouldn't happen if handleBeginTurn works correctly
             if (currentPlayer?.state === 'FINISHED') {
-                console.log(`[DemoGameEngine] Skipping turn for finished player ${currentPlayer.nickname}`);
+                console.warn(`[DemoGameEngine] Finished player ${currentPlayer.nickname} reached WAITING_FOR_MOVE - this should not happen`);
                 this.deactivateRollButton();
-                // Skip finished players and advance turn
-                this.gameState.setRemainingMoves(0);
-                this.updateRemainingMoves(0);
-                this.gameState.nextPlayerTurn();
-
-                const allFinished = this.gameState.players.every(p => p.state === 'FINISHED');
-                if (!allFinished) {
-                    this.changePhase({ newTurnPhase: this.turnPhases?.BEGIN_TURN || 'BEGIN_TURN', delay: 0 });
-                } else {
-                    this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
-                }
+                // Immediately end turn
+                this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
                 return;
             }
 
