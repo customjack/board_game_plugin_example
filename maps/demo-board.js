@@ -74,7 +74,7 @@ export const demoBoard = {
                             "action": {
                                 "type": "DEMO_ACTION",
                                 "payload": {
-                                    "note": "Demo says {{DEMO_PHRASE}} — counter: {{DEMO_COUNTER}}"
+                                    "note": "Demo action executed on landing."
                                 }
                             },
                             "priority": "MID"
@@ -149,7 +149,7 @@ export const demoBoard = {
                             "action": {
                                 "type": "PROMPT_CURRENT_PLAYER",
                                 "payload": {
-                                    "message": "Demo trigger fired! Stat demo-stat is now {{CURRENT_PLAYER.stats.demo-stat}}."
+                                    "message": "Demo trigger fired! Stat demo-stat was set earlier on this path. Check Player Info to see it."
                                 }
                             },
                             "priority": "MID"
