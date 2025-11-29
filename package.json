@@ -1,12 +1,14 @@
 {
   "name": "example-everything-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Demonstration plugin that registers every supported extension point.",
   "main": "dist/plugins/example-plugin.js",
   "type": "module",
   "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "watch": "rollup -c rollup.config.js -w"
+    "build": "rollup -c rollup.config.js && npm run sync-readme-version",
+    "watch": "rollup -c rollup.config.js -w",
+    "sync-readme-version": "node ./scripts/update-readme-version.js",
+    "postversion": "npm run sync-readme-version"
   },
   "keywords": [
     "board-game",

@@ -272,7 +272,7 @@ const createDemoPieceManager = (BasePieceManager) =>
         }
     };
 
-var version = "1.0.0";
+var version = "1.0.1";
 var pkg = {
 	version: version};
 
@@ -291,7 +291,7 @@ const demoBoard = {
         "id": "demo-plugin-board",
         "name": "Demo Plugin Board",
         "author": "Plugin Example",
-        "description": "Minimal board packaged with the example plugin",
+        "description": "Showcase board that exercises every demo component in the example plugin",
         "plugins": [
             {
                 "id": "example-everything-plugin",
@@ -335,8 +335,116 @@ const demoBoard = {
                     "id": "start",
                     "name": "Start",
                     "type": "start",
-                    "position": { "x": 200, "y": 200 },
+                    "position": { "x": 120, "y": 200 },
                     "visual": { "size": 60, "color": "#ddeeff", "textColor": "#000000" },
+                    "connections": [
+                        { "targetId": "demo-action", "draw": true }
+                    ],
+                    "triggers": []
+                },
+                {
+                    "id": "demo-action",
+                    "name": "Demo Action",
+                    "type": "action",
+                    "position": { "x": 260, "y": 200 },
+                    "visual": { "size": 60, "color": "#e6f7ff", "textColor": "#000000" },
+                    "connections": [
+                        { "targetId": "demo-effect", "draw": true }
+                    ],
+                    "triggers": [
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "DEMO_ACTION",
+                                "payload": {
+                                    "note": "Demo says {{DEMO_PHRASE}} — counter: {{DEMO_COUNTER}}"
+                                }
+                            },
+                            "priority": "MID"
+                        }
+                    ]
+                },
+                {
+                    "id": "demo-effect",
+                    "name": "Demo Effect",
+                    "type": "action",
+                    "position": { "x": 400, "y": 200 },
+                    "visual": { "size": 60, "color": "#fff7e6", "textColor": "#000000" },
+                    "connections": [
+                        { "targetId": "demo-stat", "draw": true }
+                    ],
+                    "triggers": [
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "APPLY_EFFECT",
+                                "payload": {
+                                    "effect": {
+                                        "type": "DemoEffect",
+                                        "args": [
+                                            { "id": "demo-effect-1" },
+                                            { "duration": 1 },
+                                            { "toRemove": false }
+                                        ]
+                                    }
+                                }
+                            },
+                            "priority": "MID"
+                        }
+                    ]
+                },
+                {
+                    "id": "demo-stat",
+                    "name": "Demo Stat",
+                    "type": "action",
+                    "position": { "x": 540, "y": 200 },
+                    "visual": { "size": 60, "color": "#f0e6ff", "textColor": "#000000" },
+                    "connections": [
+                        { "targetId": "demo-trigger", "draw": true }
+                    ],
+                    "triggers": [
+                        {
+                            "when": { "type": "ON_LAND" },
+                            "action": {
+                                "type": "SET_STAT",
+                                "payload": {
+                                    "statId": "demo-stat",
+                                    "value": 42,
+                                    "mode": "both"
+                                }
+                            },
+                            "priority": "MID"
+                        }
+                    ]
+                },
+                {
+                    "id": "demo-trigger",
+                    "name": "Demo Trigger",
+                    "type": "action",
+                    "position": { "x": 680, "y": 200 },
+                    "visual": { "size": 60, "color": "#e6ffe6", "textColor": "#000000" },
+                    "connections": [
+                        { "targetId": "finish", "draw": true }
+                    ],
+                    "triggers": [
+                        {
+                            "when": { "type": "DEMO_TRIGGER", "payload": { "always": true } },
+                            "action": {
+                                "type": "PROMPT_CURRENT_PLAYER",
+                                "payload": {
+                                    "message": "Demo trigger fired! Stat demo-stat is now {{CURRENT_PLAYER.stats.demo-stat}}."
+                                }
+                            },
+                            "priority": "MID"
+                        }
+                    ]
+                },
+                {
+                    "id": "finish",
+                    "name": "Finish",
+                    "type": "end",
+                    "position": { "x": 820, "y": 200 },
+                    "visual": { "size": 60, "color": "#d9f7be", "textColor": "#000000" },
                     "connections": [],
                     "triggers": []
                 }
