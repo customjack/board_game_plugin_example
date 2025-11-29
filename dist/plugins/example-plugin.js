@@ -295,7 +295,7 @@ const createDemoPieceManager = (BasePieceManager) =>
         }
     };
 
-var version = "1.0.4";
+var version = "1.0.5";
 var pkg = {
 	version: version};
 
