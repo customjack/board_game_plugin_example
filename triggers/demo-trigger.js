@@ -5,17 +5,36 @@ export const createDemoTrigger = (BaseTrigger) =>
         }
 
         isTriggered(context) {
+            const { gameState, space, eventBus } = context;
             const targetSpaceId = this.payload?.spaceId || 'demo-trigger';
-            const spaceMatches = context?.space?.id === targetSpaceId;
+            
+            // Only trigger when checking the target space
+            if (space.id !== targetSpaceId) {
+                return false;
+            }
 
-            if (spaceMatches) {
-                this.emitEvent(context?.eventBus, 'demoTriggerChecked', {
-                    space: context?.space,
-                    gameState: context?.gameState
+            const player = gameState.getCurrentPlayer();
+            if (!player) {
+                return false;
+            }
+
+            // Check if player is on this space
+            const isOnSpace = player.currentSpaceId === space.id;
+            
+            // Check if player has no moves left (has actually landed)
+            const noMovesLeft = !gameState.hasMovesLeft();
+
+            // Only trigger when player has actually landed on the space
+            const isTriggered = isOnSpace && noMovesLeft && Boolean(this.payload?.always ?? true);
+
+            if (isTriggered) {
+                this.emitEvent(eventBus, 'demoTriggerChecked', {
+                    space: space,
+                    gameState: gameState
                 });
             }
 
-            return spaceMatches && Boolean(this.payload?.always ?? true);
+            return isTriggered;
         }
 
         static getMetadata() {

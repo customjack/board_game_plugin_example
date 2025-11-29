@@ -16,9 +16,13 @@ export const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
             this.emitEvent('demoGameStateUpdated', { counter: gameState.demoCounter });
         }
 
-        rollDiceForCurrentPlayer() {
+        handleWaitingForMove() {
             const currentPlayer = this.turnManager.getCurrentPlayer();
+            
+            // Don't activate roll button for finished players
             if (currentPlayer?.state === 'FINISHED') {
+                console.log(`[DemoGameEngine] Skipping turn for finished player ${currentPlayer.nickname}`);
+                this.deactivateRollButton();
                 // Skip finished players and advance turn
                 this.gameState.setRemainingMoves(0);
                 this.updateRemainingMoves(0);
@@ -30,6 +34,33 @@ export const createDemoEngine = (TurnBasedGameEngine, DemoStatClass) =>
                 } else {
                     this.changePhase({ newTurnPhase: this.turnPhases?.END_TURN || 'END_TURN', delay: 0 });
                 }
+                return;
+            }
+
+            // Call parent to handle normal roll button activation
+            super.handleWaitingForMove();
+        }
+
+        async handlePlayerRollDice(playerId, actionData) {
+            const currentPlayer = this.turnManager.getCurrentPlayer();
+            
+            // Reject roll action if player is finished
+            if (currentPlayer?.state === 'FINISHED') {
+                return {
+                    success: false,
+                    error: 'Cannot roll dice: player has finished the game'
+                };
+            }
+
+            // Call parent to handle normal roll
+            return await super.handlePlayerRollDice(playerId, actionData);
+        }
+
+        rollDiceForCurrentPlayer() {
+            const currentPlayer = this.turnManager.getCurrentPlayer();
+            if (currentPlayer?.state === 'FINISHED') {
+                // This should not be called for finished players, but handle it defensively
+                console.warn(`[DemoGameEngine] rollDiceForCurrentPlayer called for finished player ${currentPlayer.nickname}`);
                 this.deactivateRollButton();
                 return null;
             }
