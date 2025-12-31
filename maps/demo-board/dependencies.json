@@ -1,0 +1,20 @@
+{
+  "plugins": [
+    {
+      "id": "core",
+      "version": "^1.0.0",
+      "source": "builtin",
+      "description": "Core game functionality"
+    },
+    {
+      "id": "example-everything-plugin",
+      "version": "^1.1.0",
+      "source": "plugin-bundled",
+      "cdn": "http://localhost:8080/plugins/example-plugin.js",
+      "name": "Example Everything Plugin",
+      "description": "Registers dummy implementations for every extension point"
+    }
+  ],
+  "minPlayers": 1,
+  "maxPlayers": 10
+}

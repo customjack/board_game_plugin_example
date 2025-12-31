@@ -1,7 +1,7 @@
 const createDemoAction = (BaseAction) =>
     class DemoAction extends BaseAction {
         constructor(payload = {}) {
-            super('DEMO_ACTION', payload);
+            super(payload);
         }
 
         execute(gameEngine, postExecutionCallback) {
@@ -14,9 +14,11 @@ const createDemoAction = (BaseAction) =>
             return { valid: true, errors: [] };
         }
 
+        static type = 'DEMO_ACTION';
+
         static getMetadata() {
             return {
-                type: 'DEMO_ACTION',
+                type: DemoAction.type,
                 displayName: 'Demo Action',
                 description: 'Logs that the demo action ran.',
                 payloadSchema: {
@@ -34,7 +36,7 @@ const createDemoAction = (BaseAction) =>
 const createDemoTrigger = (BaseTrigger) =>
     class DemoTrigger extends BaseTrigger {
         constructor(payload = {}) {
-            super('DEMO_TRIGGER', payload);
+            super(payload);
         }
 
         isTriggered(context) {
@@ -70,9 +72,11 @@ const createDemoTrigger = (BaseTrigger) =>
             return isTriggered;
         }
 
+        static type = 'DEMO_TRIGGER';
+
         static getMetadata() {
             return {
-                type: 'DEMO_TRIGGER',
+                type: DemoTrigger.type,
                 displayName: 'Demo Trigger',
                 description: 'Always triggers (configurable).',
                 category: 'demo',
@@ -476,7 +480,399 @@ function registerDemoPlayerStates(registryManager) {
     console.log('[DemoPlugin] Registered custom player states');
 }
 
-var version = "1.1.0";
+var id = "demo-plugin-board";
+var boardManifest = {
+	id: id};
+
+var name = "Demo Plugin Board";
+var author = "Plugin Example";
+var version$1 = "1.1.0";
+var description = "Showcase board that exercises every demo component in the example plugin";
+var tags = [
+];
+var created = "2025-12-31T10:21:26.605Z";
+var modified = "2025-12-31T10:21:26.605Z";
+var metadataJson = {
+	name: name,
+	author: author,
+	version: version$1,
+	description: description,
+	tags: tags,
+	created: created,
+	modified: modified
+};
+
+var type = "demo-engine";
+var config = {
+};
+var engineJson = {
+	type: type,
+	config: config
+};
+
+var turnOrder = "sequential";
+var startingPositions = {
+};
+var recommendedPlayers = {
+};
+var diceRolling = {
+};
+var winCondition = {
+	type: "CUSTOM",
+	config: {
+	}
+};
+var rulesJson = {
+	turnOrder: turnOrder,
+	startingPositions: startingPositions,
+	recommendedPlayers: recommendedPlayers,
+	diceRolling: diceRolling,
+	winCondition: winCondition
+};
+
+var layout = "standard-board";
+var components = [
+];
+var uiJson = {
+	layout: layout,
+	components: components
+};
+
+var spaces = [
+	{
+		id: "start",
+		name: "Start",
+		type: "start",
+		position: {
+			x: 120,
+			y: 200
+		},
+		visual: {
+			size: 60,
+			color: "#ddeeff",
+			textColor: "#000000",
+			image: "assets/space.png"
+		},
+		connections: [
+			{
+				targetId: "demo-action",
+				draw: true
+			}
+		],
+		triggers: [
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "PROMPT_CURRENT_PLAYER",
+					payload: {
+						message: "Welcome to the demo board! Move along the path to see each component."
+					}
+				},
+				priority: "LOW"
+			}
+		]
+	},
+	{
+		id: "demo-action",
+		name: "Demo Action",
+		type: "action",
+		position: {
+			x: 260,
+			y: 200
+		},
+		visual: {
+			size: 60,
+			color: "#e6f7ff",
+			textColor: "#000000",
+			image: "assets/space.png"
+		},
+		connections: [
+			{
+				targetId: "demo-effect",
+				draw: true
+			}
+		],
+		triggers: [
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "DEMO_ACTION",
+					payload: {
+						note: "Demo action executed on landing."
+					}
+				},
+				priority: "MID"
+			},
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "PROMPT_CURRENT_PLAYER",
+					payload: {
+						message: "Demo Action space: fired the demo action."
+					}
+				},
+				priority: "LOW"
+			}
+		]
+	},
+	{
+		id: "demo-effect",
+		name: "Demo Effect",
+		type: "action",
+		position: {
+			x: 400,
+			y: 200
+		},
+		visual: {
+			size: 60,
+			color: "#fff7e6",
+			textColor: "#000000",
+			image: "assets/space.png"
+		},
+		connections: [
+			{
+				targetId: "demo-stat",
+				draw: true
+			}
+		],
+		triggers: [
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "APPLY_EFFECT",
+					payload: {
+						effect: {
+							type: "DemoEffect",
+							args: [
+								{
+									id: "demo-effect-1"
+								},
+								{
+									duration: 1
+								},
+								{
+									toRemove: false
+								}
+							]
+						}
+					}
+				},
+				priority: "MID"
+			},
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "PROMPT_CURRENT_PLAYER",
+					payload: {
+						message: "Demo Effect space: applied DemoEffect to your player."
+					}
+				},
+				priority: "LOW"
+			}
+		]
+	},
+	{
+		id: "demo-stat",
+		name: "Demo Stat",
+		type: "action",
+		position: {
+			x: 540,
+			y: 200
+		},
+		visual: {
+			size: 60,
+			color: "#f0e6ff",
+			textColor: "#000000",
+			image: "assets/space.png"
+		},
+		connections: [
+			{
+				targetId: "demo-trigger",
+				draw: true
+			}
+		],
+		triggers: [
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "SET_STAT",
+					payload: {
+						statId: "demo-stat",
+						value: 42,
+						mode: "both"
+					}
+				},
+				priority: "MID"
+			},
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "PROMPT_CURRENT_PLAYER",
+					payload: {
+						message: "Demo Stat space: set demo-stat to 42. Check Player Info > Activity."
+					}
+				},
+				priority: "LOW"
+			}
+		]
+	},
+	{
+		id: "demo-trigger",
+		name: "Demo Trigger",
+		type: "action",
+		position: {
+			x: 680,
+			y: 200
+		},
+		visual: {
+			size: 60,
+			color: "#e6ffe6",
+			textColor: "#000000",
+			image: "assets/space.png"
+		},
+		connections: [
+			{
+				targetId: "finish",
+				draw: true
+			}
+		],
+		triggers: [
+			{
+				when: {
+					type: "DEMO_TRIGGER",
+					payload: {
+						always: true,
+						spaceId: "demo-trigger"
+					}
+				},
+				action: {
+					type: "PROMPT_CURRENT_PLAYER",
+					payload: {
+						message: "Demo trigger fired! Stat demo-stat was set earlier on this path. Check Player Info to see it."
+					}
+				},
+				priority: "MID"
+			},
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "PROMPT_CURRENT_PLAYER",
+					payload: {
+						message: "Demo Trigger space: ran custom trigger and prompt."
+					}
+				},
+				priority: "LOW"
+			}
+		]
+	},
+	{
+		id: "finish",
+		name: "Finish",
+		type: "end",
+		position: {
+			x: 820,
+			y: 200
+		},
+		visual: {
+			size: 60,
+			color: "#d9f7be",
+			textColor: "#000000",
+			image: "assets/space.png"
+		},
+		connections: [
+		],
+		triggers: [
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "SET_PLAYER_STATE",
+					payload: {
+						state: "FINISHED"
+					}
+				},
+				priority: "MID"
+			},
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "PROMPT_CURRENT_PLAYER",
+					payload: {
+						message: "You reached the finish! Your state is now FINISHED."
+					}
+				},
+				priority: "LOW"
+			},
+			{
+				when: {
+					type: "ON_LAND"
+				},
+				action: {
+					type: "PROMPT_CURRENT_PLAYER",
+					payload: {
+						message: "Finish space: game end state applied."
+					}
+				},
+				priority: "LOW"
+			}
+		]
+	}
+];
+var connections = [
+];
+var topologyJson = {
+	spaces: spaces,
+	connections: connections
+};
+
+var plugins = [
+	{
+		id: "core",
+		version: "^1.0.0",
+		source: "builtin",
+		description: "Core game functionality"
+	},
+	{
+		id: "example-everything-plugin",
+		version: "^1.1.0",
+		source: "plugin-bundled",
+		cdn: "http://localhost:8080/plugins/example-plugin.js",
+		name: "Example Everything Plugin",
+		description: "Registers dummy implementations for every extension point"
+	}
+];
+var minPlayers = 1;
+var maxPlayers = 10;
+var dependenciesJson = {
+	plugins: plugins,
+	minPlayers: minPlayers,
+	maxPlayers: maxPlayers
+};
+
+var spaceImage = "assets/example-space.png";
+
+var previewImage = "assets/example-preview.png";
+
+var version = "1.1.1";
 var pkg = {
 	version: version};
 
@@ -487,255 +883,96 @@ const EXAMPLE_PLUGIN_CDN = (version = EXAMPLE_PLUGIN_VERSION) =>
 
 const EXAMPLE_PLUGIN_REQUIREMENT = (version = EXAMPLE_PLUGIN_VERSION) => `^${version}`;
 
-const demoBoard = {
-    "$schema": "https://boardgame.example.com/schemas/game-v3.json",
-    "version": EXAMPLE_PLUGIN_VERSION,
-    "type": "game",
-    "metadata": {
-        "id": "demo-plugin-board",
-        "name": "Demo Plugin Board",
-        "author": "Plugin Example",
-        "description": "Showcase board that exercises every demo component in the example plugin",
-        "plugins": [
-            {
-                "id": "example-everything-plugin",
-                "version": EXAMPLE_PLUGIN_REQUIREMENT(),
-                "source": "plugin-bundled"
+// Resolve emitted assets so they work from CDN or cached blob URLs
+const resolveAssetUrl = (assetPath) => {
+    if (!assetPath) return assetPath;
+    try {
+        return new URL(assetPath, import.meta.url).href;
+    } catch (err) {
+        if (typeof window !== 'undefined') {
+            const base = `${window.location.origin}/plugins/`;
+            try {
+                return new URL(assetPath, base).href;
+            } catch {
+                return `${base}${assetPath}`;
             }
-        ]
-    },
-    "requirements": {
-        "plugins": [
-            {
-                "id": "core",
-                "version": "^1.0.0",
-                "source": "builtin",
-                "description": "Core game functionality"
-            },
-            {
-                "id": "example-everything-plugin",
-                "version": EXAMPLE_PLUGIN_REQUIREMENT(),
-                "source": "remote",
-                "cdn": EXAMPLE_PLUGIN_CDN(),
-                "name": "Example Everything Plugin",
-                "description": "Registers dummy implementations for every extension point"
-            }
-        ],
-        "minPlayers": 1,
-        "maxPlayers": 10
-    },
-    "engine": {
-        "type": "demo-engine",
-        "config": {}
-    },
-    "ui": {
-        "layout": "standard-board",
-        "components": []
-    },
-    "board": {
-        "topology": {
-            "spaces": [
-                {
-                    "id": "start",
-                    "name": "Start",
-                    "type": "start",
-                    "position": { "x": 120, "y": 200 },
-                    "visual": { "size": 60, "color": "#ddeeff", "textColor": "#000000" },
-                    "connections": [
-                        { "targetId": "demo-action", "draw": true }
-                    ],
-                    "triggers": [
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "PROMPT_CURRENT_PLAYER",
-                                "payload": {
-                                    "message": "Welcome to the demo board! Move along the path to see each component."
-                                }
-                            },
-                            "priority": "LOW"
-                        }
-                    ]
-                },
-                {
-                    "id": "demo-action",
-                    "name": "Demo Action",
-                    "type": "action",
-                    "position": { "x": 260, "y": 200 },
-                    "visual": { "size": 60, "color": "#e6f7ff", "textColor": "#000000" },
-                    "connections": [
-                        { "targetId": "demo-effect", "draw": true }
-                    ],
-                    "triggers": [
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "DEMO_ACTION",
-                                "payload": {
-                                    "note": "Demo action executed on landing."
-                                }
-                            },
-                            "priority": "MID"
-                        },
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "PROMPT_CURRENT_PLAYER",
-                                "payload": {
-                                    "message": "Demo Action space: fired the demo action."
-                                }
-                            },
-                            "priority": "LOW"
-                        }
-                    ]
-                },
-                {
-                    "id": "demo-effect",
-                    "name": "Demo Effect",
-                    "type": "action",
-                    "position": { "x": 400, "y": 200 },
-                    "visual": { "size": 60, "color": "#fff7e6", "textColor": "#000000" },
-                    "connections": [
-                        { "targetId": "demo-stat", "draw": true }
-                    ],
-                    "triggers": [
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "APPLY_EFFECT",
-                                "payload": {
-                                    "effect": {
-                                        "type": "DemoEffect",
-                                        "args": [
-                                            { "id": "demo-effect-1" },
-                                            { "duration": 1 },
-                                            { "toRemove": false }
-                                        ]
-                                    }
-                                }
-                            },
-                            "priority": "MID"
-                        },
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "PROMPT_CURRENT_PLAYER",
-                                "payload": {
-                                    "message": "Demo Effect space: applied DemoEffect to your player."
-                                }
-                            },
-                            "priority": "LOW"
-                        }
-                    ]
-                },
-                {
-                    "id": "demo-stat",
-                    "name": "Demo Stat",
-                    "type": "action",
-                    "position": { "x": 540, "y": 200 },
-                    "visual": { "size": 60, "color": "#f0e6ff", "textColor": "#000000" },
-                    "connections": [
-                        { "targetId": "demo-trigger", "draw": true }
-                    ],
-                    "triggers": [
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "SET_STAT",
-                                "payload": {
-                                    "statId": "demo-stat",
-                                    "value": 42,
-                                    "mode": "both"
-                                }
-                            },
-                            "priority": "MID"
-                        },
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "PROMPT_CURRENT_PLAYER",
-                                "payload": {
-                                    "message": "Demo Stat space: set demo-stat to 42. Check Player Info > Activity."
-                                }
-                            },
-                            "priority": "LOW"
-                        }
-                    ]
-                },
-                {
-                    "id": "demo-trigger",
-                    "name": "Demo Trigger",
-                    "type": "action",
-                    "position": { "x": 680, "y": 200 },
-                    "visual": { "size": 60, "color": "#e6ffe6", "textColor": "#000000" },
-                    "connections": [
-                        { "targetId": "finish", "draw": true }
-                    ],
-                    "triggers": [
-                        {
-                            "when": { "type": "DEMO_TRIGGER", "payload": { "always": true, "spaceId": "demo-trigger" } },
-                            "action": {
-                                "type": "PROMPT_CURRENT_PLAYER",
-                                "payload": {
-                                    "message": "Demo trigger fired! Stat demo-stat was set earlier on this path. Check Player Info to see it."
-                                }
-                            },
-                            "priority": "MID"
-                        },
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "PROMPT_CURRENT_PLAYER",
-                                "payload": {
-                                    "message": "Demo Trigger space: ran custom trigger and prompt."
-                                }
-                            },
-                            "priority": "LOW"
-                        }
-                    ]
-                },
-                {
-                    "id": "finish",
-                    "name": "Finish",
-                    "type": "end",
-                    "position": { "x": 820, "y": 200 },
-                    "visual": { "size": 60, "color": "#d9f7be", "textColor": "#000000" },
-                    "connections": [],
-                    "triggers": [
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "SET_PLAYER_STATE",
-                                "payload": {
-                                    "state": "FINISHED"
-                                }
-                            },
-                            "priority": "MID"
-                        },
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "PROMPT_CURRENT_PLAYER",
-                                "payload": {
-                                    "message": "You reached the finish! Your state is now FINISHED."
-                                }
-                            },
-                            "priority": "LOW"
-                        },
-                        {
-                            "when": { "type": "ON_LAND" },
-                            "action": {
-                                "type": "PROMPT_CURRENT_PLAYER",
-                                "payload": {
-                                    "message": "Finish space: game end state applied."
-                                }
-                            },
-                            "priority": "LOW"
-                        }
-                    ]
-                }
-            ]
         }
+        return assetPath;
+    }
+};
+
+const resolvedSpaceImage = resolveAssetUrl(spaceImage);
+const resolvedPreviewImage = resolveAssetUrl(previewImage);
+
+// Rebuild the monolithic board object from the modular bundle files
+// Note: mark as plugin-bundled so the host doesn't try to resolve Node-style deps from a remote build
+const pluginRequirement = {
+    id: 'example-everything-plugin',
+    version: EXAMPLE_PLUGIN_REQUIREMENT(),
+    source: 'plugin-bundled',
+    cdn: EXAMPLE_PLUGIN_CDN(),
+    name: 'Example Everything Plugin',
+    description: 'Registers dummy implementations for every extension point'
+};
+
+const dependencies = {
+    ...dependenciesJson,
+    plugins: (dependenciesJson.plugins || []).map((dep) =>
+        dep.id === pluginRequirement.id ? { ...dep, ...pluginRequirement } : dep
+    )
+};
+
+const metadata = {
+    ...metadataJson,
+    id: metadataJson.id || boardManifest.id,
+    version: EXAMPLE_PLUGIN_VERSION,
+    plugins: metadataJson.plugins || [
+        { id: pluginRequirement.id, version: EXAMPLE_PLUGIN_REQUIREMENT(), source: 'plugin-bundled' }
+    ],
+    thumbnail: metadataJson.thumbnail || resolvedPreviewImage
+};
+
+const topologyWithImages = {
+    ...topologyJson,
+    spaces: (topologyJson.spaces || []).map((space) => ({
+        ...space,
+        visual: {
+            ...space.visual,
+            image: resolvedSpaceImage
+        }
+    }))
+};
+
+const demoBoard = {
+    $schema: 'https://boardgame.example.com/schemas/game-v3.json',
+    version: metadata.version,
+    type: 'game',
+    metadata,
+    requirements: {
+        plugins: dependencies.plugins || [],
+        minPlayers: dependencies.minPlayers,
+        maxPlayers: dependencies.maxPlayers
+    },
+    engine: {
+        type: engineJson.type,
+        config: engineJson.config || {}
+    },
+    ui: {
+        layout: uiJson.layout,
+        theme: uiJson.theme || {},
+        components: uiJson.components || []
+    },
+    rules: {
+        ...rulesJson,
+        minPlayers: rulesJson.minPlayers ?? dependencies.minPlayers,
+        maxPlayers: rulesJson.maxPlayers ?? dependencies.maxPlayers
+    },
+    board: {
+        topology: {
+            spaces: topologyWithImages.spaces || [],
+            connections: topologyWithImages.connections || []
+        },
+        rendering: {}
     }
 };
 

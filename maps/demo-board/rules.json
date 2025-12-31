@@ -1,0 +1,10 @@
+{
+  "turnOrder": "sequential",
+  "startingPositions": {},
+  "recommendedPlayers": {},
+  "diceRolling": {},
+  "winCondition": {
+    "type": "CUSTOM",
+    "config": {}
+  }
+}

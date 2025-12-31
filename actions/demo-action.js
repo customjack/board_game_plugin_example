@@ -1,7 +1,7 @@
 export const createDemoAction = (BaseAction) =>
     class DemoAction extends BaseAction {
         constructor(payload = {}) {
-            super('DEMO_ACTION', payload);
+            super(payload);
         }
 
         execute(gameEngine, postExecutionCallback) {
@@ -14,9 +14,11 @@ export const createDemoAction = (BaseAction) =>
             return { valid: true, errors: [] };
         }
 
+        static type = 'DEMO_ACTION';
+
         static getMetadata() {
             return {
-                type: 'DEMO_ACTION',
+                type: DemoAction.type,
                 displayName: 'Demo Action',
                 description: 'Logs that the demo action ran.',
                 payloadSchema: {

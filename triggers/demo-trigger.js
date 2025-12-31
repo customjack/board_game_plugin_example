@@ -1,7 +1,7 @@
 export const createDemoTrigger = (BaseTrigger) =>
     class DemoTrigger extends BaseTrigger {
         constructor(payload = {}) {
-            super('DEMO_TRIGGER', payload);
+            super(payload);
         }
 
         isTriggered(context) {
@@ -37,9 +37,11 @@ export const createDemoTrigger = (BaseTrigger) =>
             return isTriggered;
         }
 
+        static type = 'DEMO_TRIGGER';
+
         static getMetadata() {
             return {
-                type: 'DEMO_TRIGGER',
+                type: DemoTrigger.type,
                 displayName: 'Demo Trigger',
                 description: 'Always triggers (configurable).',
                 category: 'demo',
