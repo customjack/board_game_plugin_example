@@ -5,30 +5,14 @@ import rulesJson from './demo-board/rules.json';
 import uiJson from './demo-board/ui.json';
 import topologyJson from './demo-board/topology.json';
 import dependenciesJson from './demo-board/dependencies.json';
+import { EXAMPLE_PLUGIN_VERSION, EXAMPLE_PLUGIN_CDN, EXAMPLE_PLUGIN_REQUIREMENT } from '../version.js';
 import spaceImage from './demo-board/assets/space.png';
 import previewImage from './demo-board/preview.png';
-import { EXAMPLE_PLUGIN_VERSION, EXAMPLE_PLUGIN_CDN, EXAMPLE_PLUGIN_REQUIREMENT } from '../version.js';
 
-// Resolve emitted assets so they work from CDN or cached blob URLs
-const resolveAssetUrl = (assetPath) => {
-    if (!assetPath) return assetPath;
-    try {
-        return new URL(assetPath, import.meta.url).href;
-    } catch (err) {
-        if (typeof window !== 'undefined') {
-            const base = `${window.location.origin}/plugins/`;
-            try {
-                return new URL(assetPath, base).href;
-            } catch {
-                return `${base}${assetPath}`;
-            }
-        }
-        return assetPath;
-    }
-};
-
-const resolvedSpaceImage = resolveAssetUrl(spaceImage);
-const resolvedPreviewImage = resolveAssetUrl(previewImage);
+// Rollup + @rollup/plugin-url will emit these assets into dist/plugins/assets and rewrite
+// them to absolute URLs using import.meta.url in the bundle.
+const resolvedSpaceImage = new URL(spaceImage, import.meta.url).href;
+const resolvedPreviewImage = new URL(previewImage, import.meta.url).href;
 
 // Rebuild the monolithic board object from the modular bundle files
 // Note: mark as plugin-bundled so the host doesn't try to resolve Node-style deps from a remote build

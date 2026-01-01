@@ -868,11 +868,7 @@ var dependenciesJson = {
 	maxPlayers: maxPlayers
 };
 
-var spaceImage = "assets/example-space.png";
-
-var previewImage = "assets/example-preview.png";
-
-var version = "1.1.1";
+var version = "1.1.2";
 var pkg = {
 	version: version};
 
@@ -883,26 +879,14 @@ const EXAMPLE_PLUGIN_CDN = (version = EXAMPLE_PLUGIN_VERSION) =>
 
 const EXAMPLE_PLUGIN_REQUIREMENT = (version = EXAMPLE_PLUGIN_VERSION) => `^${version}`;
 
-// Resolve emitted assets so they work from CDN or cached blob URLs
-const resolveAssetUrl = (assetPath) => {
-    if (!assetPath) return assetPath;
-    try {
-        return new URL(assetPath, import.meta.url).href;
-    } catch (err) {
-        if (typeof window !== 'undefined') {
-            const base = `${window.location.origin}/plugins/`;
-            try {
-                return new URL(assetPath, base).href;
-            } catch {
-                return `${base}${assetPath}`;
-            }
-        }
-        return assetPath;
-    }
-};
+var spaceImage = "assets/example-space.png";
 
-const resolvedSpaceImage = resolveAssetUrl(spaceImage);
-const resolvedPreviewImage = resolveAssetUrl(previewImage);
+var previewImage = "assets/example-preview.png";
+
+// Rollup + @rollup/plugin-url will emit these assets into dist/plugins/assets and rewrite
+// them to absolute URLs using import.meta.url in the bundle.
+const resolvedSpaceImage = new URL(spaceImage, import.meta.url).href;
+const resolvedPreviewImage = new URL(previewImage, import.meta.url).href;
 
 // Rebuild the monolithic board object from the modular bundle files
 // Note: mark as plugin-bundled so the host doesn't try to resolve Node-style deps from a remote build

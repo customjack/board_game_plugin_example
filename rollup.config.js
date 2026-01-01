@@ -14,6 +14,7 @@ export default {
         json(),
         url({
             limit: 0, // always emit files, don't inline
+            // Flatten into dist/plugins/assets with an example- prefix to avoid collisions
             fileName: 'assets/example-[name][extname]'
         }),
         resolve(),
