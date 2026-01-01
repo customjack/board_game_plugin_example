@@ -868,7 +868,7 @@ var dependenciesJson = {
 	maxPlayers: maxPlayers
 };
 
-var version = "1.1.2";
+var version = "1.1.3";
 var pkg = {
 	version: version};
 
